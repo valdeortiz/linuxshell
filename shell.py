@@ -17,7 +17,10 @@ class Comandos(Cmd):
         cambiar los permisos -> Cambiar de permisos de un archivo o directorio.
         cambiar los propietarios -> Cambiar los propietarios de un archivo o directorio.
         cambiar la contrasenha -> 
-        ejecutar el comando de Bash
+        agregar usuario -> 
+        registro de inicio y fin de sesion -> 
+        transferencia ftp.
+        ejecutar el comando de Bash -> Ejecuta cualquier comando del s.o.
 
     """
     intro = "***  Shell  *** \n=> introduzca help para visualizar los comandos habilitados." #Interprete de comandos FiOS.
