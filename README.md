@@ -15,7 +15,7 @@ o decargar en el repositorio. En la seccion de clone, click en "Descargar en zip
 
 
 
-![Descarga](/home/valde/Escritorio/archivos/image.png)
+![Descarga](https://i.imgur.com/3JZUE96.png)
 
 ***
 ## Pre-requisitos 📋.
