@@ -5,16 +5,29 @@ Mediante las instrucciones que aporta el intérprete, el usuario puede comunicar
 [mas informacion](https://es.wikipedia.org/wiki/Shell_de_Unix)
 
 *** 
+## Descarga de Repositorio :arrow_backward:
+
+Ejecutar:``` git clone https://gitlab.com/valdeortiz/linuxshell.git ```
+
+
+
+o decargar en el repositorio. En la seccion de clone, click en "Descargar en zip"
+
+
+
+![Descarga](/home/valde/Escritorio/archivos/image.png)
+
+***
 ## Pre-requisitos 📋.
-Se necesita tener instalado python3, que viene instalado en la mayoria de distribuciones GNU/Linux. Para asegurarse cual version se encuentra instalado en tu maquina. Ejecuta:
+Se necesita tener instalado python 3.6 en adelante, que viene instalado en la mayoria de distribuciones GNU/Linux. Para asegurarse cual version se encuentra instalado en tu maquina. Ejecuta:
 
      python --version
 
-Descargar el repositorio.
+Seguir las intruciones del enunciado anterior para la Descarga del repositorio.
 
 
 ### Ejecucion 🔩
-Desde nuestro interprete de comandos(host) ingresamos a la carpeta donde se encuentra el repositorio, ejecutamos:
+Desde nuestro interprete de comandos(host, ejemplo bash o zsh). Ingresamos a la carpeta donde se encuentra el repositorio previamente descargado o clonado. Ejecutamos:
 
     python shell.py
 
@@ -22,7 +35,7 @@ Desde nuestro interprete de comandos(host) ingresamos a la carpeta donde se encu
 
 ## Construido con 🛠️
 
-- [Python version 3.X](https://www.python.org/)
+- [Python version 3.5.X](https://www.python.org/ "Pagina oficial del lenguaje de programacion Python")
 
 
 ## Comandos ⌨️
@@ -37,8 +50,9 @@ Desde nuestro interprete de comandos(host) ingresamos a la carpeta donde se encu
 8. Cpropietarios: Cambiar de propietarios.
 9. Ccontra: Cambiar contrasena.
 10. Nuevousuario: Crear un usuario.
-11. Deminios:
-12. Ejecutar: Ejecuta cualquier comando de bash.
+11. Deminios: Levanta o apaga demonios.
+12. Ejecutar: Ejecuta cualquier comando de del Interprete de comando Host.
+
 
 > ***PARA LISTAR LOS COMANDOS. EJECUTAR***
 
@@ -72,19 +86,22 @@ Desde nuestro interprete de comandos(host) ingresamos a la carpeta donde se encu
 
 > ***Si al ejecutar `python --version`, da como resultado una version 2.X. Reemplaza python por python3, quedaria asi: `python3 --version` y al ejecutar quedaria asi: `python3 shell.py`***
 
+
 ## Documentacion oficial 📄
-[libreria cmd](https://docs.python.org/3/library/cmd.html)
+[libreria cmd](https://docs.python.org/3/library/cmd.html "Construccion de un interprete de comandos")
 
-[libreria os](https://docs.python.org/3/library/os.html "Operaciones del s.o.")
+[Libreria os](https://docs.python.org/3/library/os.html "Operaciones del s.o.")
 
-[libreria shutil](https://docs.python.org/3/library/shutil.html)
+[Libreria shutil](https://docs.python.org/3/library/shutil.html "Operaciones con archivos")
 
+[Libreria logging](https://docs.python.org/3/library/logging.html#module-logging "Registros/Log")
 ---
 
 ## Recomendaciones 📦
 
-- Tener conocimientos en linux.
-- Asegurarse de tener todo instalado.
+- Aegurarse que la version de python sea 3.6 en adelante.
+- Tener conocimientos basicos en linux.
+- Asegurarse de tener todo lo necesario instalado en su dispositivo, recomendamos la lectura de pre-requisitos.
 
 ## Autores ✒️
 
