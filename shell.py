@@ -5,26 +5,32 @@
 from cmd import Cmd
 import os
 import shutil 
+import pwd
 import logging
+import getpass 
 
 class Comandos(Cmd):
     """lista de comandos 
-        copiar -> x
+        copiar -> x ..usamos makefile de shutil podemos hacer con tar, comprimimos despues movemos a donde queremos copiar y lo descomprimimos.
         cambiar directorio -> x
         cambiar los permisos -> Cambiar de permisos de un archivo o directorio.
         cambiar los propietarios -> Cambiar los propietarios de un archivo o directorio.
         cambiar la contrasenha -> 
         agregar usuario -> 
-        registro de inicio y fin de sesion -> 
         transferencia ftp.
     """
-    intro = "***  Shell  *** \n=> introduzca help para visualizar los comandos habilitados." #Interprete de comandos FiOS.
+    """ intro => imprime el mensaje de bienvenida.
+        pront => el sgino al inicio del comando.
+        doc,header,misc = documentacion de metodos.
+        ruler => separador entra las difenrentes documentaciones.
+    """
+    intro = "***  Shell  *** \n=> introduzca <help> para visualizar los comandos habilitados." #Interprete de comandos FiOS.
     prompt = "Introduza un comando: "
     misc_header="Documentacion de los metodos"
     doc_header = "Ayuda de comandos documentados. Presione help <comando>"
     undoc_header="Los siguientes comandos no estan documentados:"
     ruler = "*" # caracter separador al ejecutar help=menu de ayuda
-
+    # config para lfs.
     #fichero_log = "/usr/log/Lfs_Shell_log"
     # logging.basicConfig(level=logging.DEBUG,
     #                 format='%(asctime)s %(message)s', 
@@ -35,7 +41,7 @@ class Comandos(Cmd):
     # En el archivo debe ir el registro de inicio y cierre de sesion.
     # Los mensajes de error son guardados en un archivo independiente llamado Shell_error_log que debe ir dentro del archivo log
     # Descripcion de la libreria logging al final del script.
-    logging.basicConfig(level=logging.DEBUG,
+    logging.basicConfig( #level=logging.ERROR,
                         format='%(asctime)s %(name)s %(levelname)s %(message)s', # name es el user, asctime es hora y fecha, levelname: severidad, message: mensaje del error.
                         filename="Shell_Error.log")
 
@@ -57,11 +63,14 @@ class Comandos(Cmd):
             try:
                 os.rename(args[0],args[1])
                 print("<",args[0],">", "fue renombrado a ","<",args[1],">")
+            except OSError:
+                print("Error -> nombres y rutas de archivos no válidos o inaccesibles.")
+                logging.error("nombres y rutas de archivos no válidos o inaccesibles. Al ejecutar <renombrar>")
             except Exception as e:
                 print(f" Error: {e} -> al ejecutar <renombrar>")
                 logging.error(f" codigo del error: {e} -> al ejecutar <renombrar>")
         else:
-            pass        
+            pass 
         
     def do_listar(self, arg):
         """ Lista todos los archivos del directorio actual o de una ruta especifica.
@@ -83,7 +92,9 @@ class Comandos(Cmd):
                     print(dirs, end="  ")
                 print("\n")
                 print("listado del directorio solicitado")
-             
+        except OSError:
+                print("Error -> nombres y rutas de archivos no válidos o inaccesibles.")
+                logging.error("nombres y rutas de archivos no válidos o inaccesibles. Al ejecutar <listar>")
         except Exception as e:
             print(f"Error {e} -> Ejecute help <listar> para mas informacion")
             logging.error(f" codigo del error: {e} -> Al ejecutar <listar>")
@@ -101,6 +112,9 @@ class Comandos(Cmd):
             try:
                 shutil.move(args[0],args[1])
                 print("<",args[0],">", "fue movido a ","<",args[1],">")
+            except OSError:
+                print("Error -> nombres y rutas de archivos no válidos o inaccesibles.")
+                logging.error("nombres y rutas de archivos no válidos o inaccesibles. Al ejecutar <mover>")
             except Exception as e:
                 print(f"Error {e}-> Ejecute help <mover> para mas informacion")
                 logging.error(f" codigo del error: {e} -> Al ejecutar mover")
@@ -120,6 +134,9 @@ class Comandos(Cmd):
             try:
                 os.mkdir(args[0])
                 print("<",args[0],">", "fue creado")
+            except OSError:
+                print("Error -> nombres y rutas de archivos no válidos o inaccesibles.")
+                logging.error("nombres y rutas de archivos no válidos o inaccesibles. Al ejecutar <creardir>")
             except Exception as e:
                 print(f"Error {e} -> Ejecute help <creardir> para mas informacion")
                 logging.error(f"Error {e} -> al ejecutar <creardir>")
@@ -139,6 +156,9 @@ class Comandos(Cmd):
             try:
                 os.chmod(args[0],int(args[1],8)) #EL segundo parametro que recibe chmod debe ser entero y en octal
                 print("<",args[0],">", "permisos cambiado")
+            except OSError:
+                print("Error -> nombres y rutas de archivos no válidos o inaccesibles.")
+                logging.error("nombres y rutas de archivos no válidos o inaccesibles. Al ejecutar <permisos>")
             except Exception as e:
                 print(f"Error {e}-> Ejecute help <permisos> para mas informacion")
                 logging.error(f"codigo del error: {e} -> al ejecutar <permisos> ")
@@ -160,21 +180,49 @@ class Comandos(Cmd):
                 print("<",args[0],">", "propietarios cambiados")
                 print("propietario_id del archivo:", os.stat(args[0]).st_uid) 
                 print("Grupo_id del archivo:", os.stat(args[0]).st_gid)
+            except OSError:
+                print("Error -> nombres y rutas de archivos no válidos o inaccesibles.")
+                logging.error("nombres y rutas de archivos no válidos o inaccesibles. Al ejecutar <cambiarpropietario>")
             except Exception as e:
                 print(f"Error {e}-> Ejecute help <propietario> para mas informacion")
                 logging.error(f" Codigo de error: {e} -> al ejecutar <propietario>")
-
         else:
             pass
 
+    def do_ccontra(self, args):
+        """ Cambiar la contrasenha de un usuario 
+        parametros:
+            -> [usuario]
+        Modo de Ejecucion:
+            -> ccontra [usuario]
+        """
+        #os.system(f"passwd {args}")
+        contra_nueva = getpass.getpass("Introduce el nuevo password")
+        print(contra_nueva)
+
+    def do_nuevoUsuario(self, args):
+        """Crea un nuevo usuario en el sistema.
+        parametros:
+            -> [nombre de usuario] []
+        Ejecucion:
+            -> nuevoUsuario <nombre de usuario>
+        """
+        pass
+
+    def do_ftp(self,args):
+        pass
 
     def do_limpiar(self, args):
         os.system("clear")
 
     def do_ejecutar(self, args):
-        """ Ejecuta un comando del sistema"""
+        """ Ejecuta un comando del sistema
+        Parametros: [comando del interprete host]
+        Ejecucion: ejecutar <comando>
+        """
         os.system(args)
-        #llama a las funciones de la shell host.        
+        # subprocess.call("comando")
+        #llama a los comandos del interprete de comandos-host.        
 
 ######################################################################
     
@@ -221,8 +269,28 @@ class Comandos(Cmd):
 #Funcion main .. Verificamos que al ejecutar el script no sea un modulo importado.
 # Al ejecutar este script importando desde otro script no se ejecuta estas lineas.
 if __name__ == '__main__':
-    logging.info("Inicio de sesion")
-    Comandos().cmdloop()
+    #pwd.getpwnam(name) retorna una lista con los datos del user name
+    user = getpass.getuser()
+
+    logger = logging.getLogger('sesion_Log')
+    logger.setLevel(logging.DEBUG)
+    fh = logging.FileHandler('sesion.log')
+    fh.setLevel(logging.DEBUG)
+    logger.addHandler(fh)
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    fh.setFormatter(formatter)
+    logger.addHandler(fh)
+    #logger.debug('mensaje debug')
+    try:
+        logger.info(f"{user} - Inicio sesion")
+        Comandos().cmdloop()
+    except KeyboardInterrupt:
+        print(f"\nCierre de sesion {user} - Interrupcion de teclado")
+        logger.info(f" {user} Cerro sesion - Interrupcion de teclado")
+        exit()
+
+
+
 
 
     """ Funciones de logging segun el nivel de severidad:
@@ -241,4 +309,16 @@ if __name__ == '__main__':
 
     obs: El nivel predeterminado es el warning. Si ejecutamos un info depues de un warning, no imprimira nada debido a que warning es mas severo.
     por ello comenzamos colocando el level de debug.
+
+    para especificar en que archivo se guarda el registro 
+    logger = logging.getLogger('ejemplo_Log')
+    logger.setLevel(logging.DEBUG)
+    fh = logging.FileHandler('debug.log')
+    fh.setLevel(logging.DEBUG)
+    logger.addHandler(fh)
+    logger.debug('mensaje debug')
+    logger.info('mensaje info')
+    logger.warning('mensaje warning')
+    logger.error('mensaje error')
+    logger.critical('mensaje critical')
     """

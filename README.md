@@ -35,7 +35,7 @@ Desde nuestro interprete de comandos(host, ejemplo bash o zsh). Ingresamos a la 
 
 ## Construido con 🛠️
 
-- [Python version 3.5.X](https://www.python.org/ "Pagina oficial del lenguaje de programacion Python")
+- [Python version 3.6.X](https://www.python.org/ "Pagina oficial del lenguaje de programacion Python")
 
 
 ## Comandos ⌨️
@@ -84,7 +84,7 @@ Desde nuestro interprete de comandos(host, ejemplo bash o zsh). Ingresamos a la 
 
 > ***El codigo funciona solo para python3.***
 
-> ***Si al ejecutar `python --version`, da como resultado una version 2.X. Reemplaza python por python3, quedaria asi: `python3 --version` y al ejecutar quedaria asi: `python3 shell.py`***
+> ***Si al ejecutar `python --version`, da como resultado una version 2.X. Reemplaza python por python3(ASEGURAR QUE SEA PYTHON 3.6 O MAS ACTUAL), quedaria asi: `python3 --version` y debe devolver una version de 3.6 o mas actual. Para la ejecucion quedaria asi: `python3 shell.py`***
 
 
 ## Documentacion oficial 📄
@@ -95,7 +95,10 @@ Desde nuestro interprete de comandos(host, ejemplo bash o zsh). Ingresamos a la 
 [Libreria shutil](https://docs.python.org/3/library/shutil.html "Operaciones con archivos")
 
 [Libreria logging](https://docs.python.org/3/library/logging.html#module-logging "Registros/Log")
----
+
+
+
+***
 
 ## Recomendaciones 📦
 
