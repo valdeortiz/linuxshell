@@ -8,6 +8,7 @@ import shutil
 import pwd
 import logging
 import getpass 
+import ftplib
 
 class Comandos(Cmd):
     """lista de comandos 
@@ -197,8 +198,9 @@ class Comandos(Cmd):
             -> ccontra [usuario]
         """
         #os.system(f"passwd {args}")
-        contra_nueva = getpass.getpass("Introduce el nuevo password")
-        print(contra_nueva)
+        # contra_nueva = getpass.getpass("Introduce el nuevo password")
+        # print(contra_nueva)
+        os.system("passwd " + args)
 
     def do_nuevoUsuario(self, args):
         """Crea un nuevo usuario en el sistema.
@@ -210,7 +212,37 @@ class Comandos(Cmd):
         pass
 
     def do_ftp(self,args):
-        pass
+        """Ftp brinda la posibilad de conectarse a traves del protocolo FTP.
+        Parametros: [urlFtp] -> Url del servidor FTP.
+        Ejecucion: ftp [urlFtp]
+        """
+        ftp = ftplib.FTP(args)
+        usuario = input("Introduce el usuario: ")
+        contra = getpass.getpass("Introduce la contrasenha: ")
+        ftp.login(usuario, contra)
+        ftp.quit()
+
+
+
+    def do_copia(self, args):
+        """Copia el contenido de un archivo a otro
+        Parametros: [archivo1]  Archivo cuyo contenido sera copiado en otro archivo.
+                    [archivo2]  Archivo destinatario del archivo1.
+        Ejecucion: copia [archivo 1] [archivo 2]
+        """
+        args = args.split()
+        try:
+            fileCat = open(args[0], "r")
+            fileTarget = open(args[1],"w")
+            fileTarget.write(fileCat.read())
+            print(f"Se copio el contenido de {args[0]} al {args[1]}")
+            fileTarget.close()
+            fileCat.close()
+        except:
+            print(f"El archivo {args[0]}, no se pudo abrir o no existe")
+
+    def do_eliminar(self, args):
+        os.system("rm" + args)
 
     def do_limpiar(self, args):
         os.system("clear")
@@ -226,10 +258,10 @@ class Comandos(Cmd):
 
 ######################################################################
     
-    def do_comandoejemplo(self, args):
-        """Ayuda del comando3: ejecuta comando1 y comando2"""
-        self.onecmd("comando1")
-        self.onecmd("comando2")
+    # def do_comandoejemplo(self, args):
+    #     """Ayuda del comando3: ejecuta comando1 y comando2"""
+    #     self.onecmd("comando1")
+    #     self.onecmd("comando2")
 
     # precmd se ejecuta antes de cada comando, no recomiendo porque puede causar errores en agunos comandos.
     # def precmd(self, args):
@@ -251,14 +283,14 @@ class Comandos(Cmd):
         pass
 
     def do_salir(self, args):
-        logging.info("Finalizacion de sesion")
+        #logging.info("Finalizacion de sesion")
         print("Hasta pronto!")
         return True 
 
-
     def default(self, args):
-        logging.error(f"Ejecuto {args}. No existe el comando ")
-        print("Error. ",args, " No existe el comando -> Presione help para visualizar los comandos posibles")
+        """ Se ejecuta en caso de un comando no valido"""
+        logging.warning(f"Ejecuto {args}. No existe el comando ")
+        print("Atencion. ",args, " No existe el comando -> Presione help para visualizar los comandos posibles")
     
     # Forma de documentar metodos,
     # def help_confirmarLongitud(self):
@@ -280,14 +312,16 @@ if __name__ == '__main__':
     formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
     fh.setFormatter(formatter)
     logger.addHandler(fh)
-    #logger.debug('mensaje debug')
+    
     try:
         logger.info(f"{user} - Inicio sesion")
         Comandos().cmdloop()
     except KeyboardInterrupt:
-        print(f"\nCierre de sesion {user} - Interrupcion de teclado")
-        logger.info(f" {user} Cerro sesion - Interrupcion de teclado")
+        print(f"\nCierre de sesion : {user} - Interrupcion de teclado")
+        logger.info(f" {user} Cerro sesion por Interrupcion de teclado")
         exit()
+    else:
+        logger.info(f"Cierre de sesion : {user}")
 
 
 

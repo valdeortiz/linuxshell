@@ -1,5 +1,7 @@
 # Shell para linux 🚀
- 
+
+[![Python versions](https://img.shields.io/badge/Python-%3Ev3.6-blue)](https://python.org/) [![version](https://img.shields.io/badge/Version-v1.0-blue)](https://gitlab.com/valdeortiz/linuxshell)
+
 Una Shell de Unix o también shell, es el término usado en informática para referirse a un intérprete de comandos, el cual consiste en la interfaz de usuario tradicional de los sistemas operativos basados en Unix y similares, como GNU/Linux.
 Mediante las instrucciones que aporta el intérprete, el usuario puede comunicarse con el núcleo y por extensión, ejecutar dichas órdenes, así como herramientas que le permiten controlar el funcionamiento de la computadora. 
 [mas informacion](https://es.wikipedia.org/wiki/Shell_de_Unix)
