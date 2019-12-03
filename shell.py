@@ -5,7 +5,7 @@
 from cmd import Cmd
 import os
 import shutil 
-import pwd
+#import pwd
 import logging
 import getpass 
 import ftplib
@@ -13,44 +13,44 @@ import ftplib
 class Comandos(Cmd):
     """lista de comandos 
         copiar -> x ..usamos makefile de shutil podemos hacer con tar, comprimimos despues movemos a donde queremos copiar y lo descomprimimos.
-        cambiar directorio -> x
-        cambiar los permisos -> Cambiar de permisos de un archivo o directorio.
-        cambiar los propietarios -> Cambiar los propietarios de un archivo o directorio.
-        cambiar la contrasenha -> 
-        agregar usuario -> 
+
+        agregar usuario y registrar sus horarios e ip de conexion. -> 
         transferencia ftp.
+        - Levantar o apagar demonios(Sin llamar a la funcion service).
+        -Registrar el inicio de sesión y la salida sesión del usuario. Se puede comparar con los registrosde su horario cada vez que inicia/cierra la sesión y si esta fuera del rango escribir en el archivo de log (personal_horarios_log)un mensaje que aclare que esta fuera del rango y deben agregar el lugar desde donde realizo la conexión que también puede estar fuera de sus IPshabilitado.
+        -Ejecutar una transferencia por ftp o scp, se debe registrar en el log Shell_transferencias del usuario.
     """
-    """ intro => imprime el mensaje de bienvenida.
-        pront => el sgino al inicio del comando.
-        doc,header,misc = documentacion de metodos.
-        ruler => separador entra las difenrentes documentaciones.
-    """
-    intro = "***  Shell  *** \n=> introduzca <help> para visualizar los comandos habilitados." #Interprete de comandos FiOS.
+    intro = "***  Shell  *** \n=> introduzca <help> para visualizar los comandos." #Interprete de comandos FiOS.
     prompt = "Introduza un comando: "
     misc_header="Documentacion de los metodos"
     doc_header = "Ayuda de comandos documentados. Presione help <comando>"
     undoc_header="Los siguientes comandos no estan documentados:"
     ruler = "*" # caracter separador al ejecutar help=menu de ayuda
-    # config para lfs.
-    #fichero_log = "/usr/log/Lfs_Shell_log"
-    # logging.basicConfig(level=logging.DEBUG,
-    #                 format='%(asctime)s %(message)s', 
-    #                 datefmt='%m/%d/%Y %I:%M:%S %p',
-    #                 filename=fichero_log,
-    #                 filemode='w')
+    
 
     # En el archivo debe ir el registro de inicio y cierre de sesion.
-    # Los mensajes de error son guardados en un archivo independiente llamado Shell_error_log que debe ir dentro del archivo log
-    # Descripcion de la libreria logging al final del script.
-    logging.basicConfig( #level=logging.ERROR,
+    # Los mensajes de error son guardados en un archivo independiente llamado errores_sistema.log que debe ir dentro del archivo /var/log
+    # Un archivo que registre todos los movimientos.
+    
+    logging.basicConfig( level=logging.INFO,
+                        # formato del horario (YYYY-MM-DD hh:min:sec), 
                         format='%(asctime)s %(name)s %(levelname)s %(message)s', # name es el user, asctime es hora y fecha, levelname: severidad, message: mensaje del error.
-                        filename="Shell_Error.log")
+                        filename="Shell_FiOs.log")
+
+    log_error = logging.getLogger("")
+    fhp = logging.FileHandler("errores_sistema.log")
+    fhp.setLevel(logging.ERROR)
+    log_error.addHandler(fhp)
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    fhp.setFormatter(formatter)
+    log_error.addHandler(fhp)
 
     def do_diractual(self, args):
         """Muestra en pantalla el directorio actual.
         -> No posee parametros.
         Manera de ejecucion: diractual
         """
+        self.log(f"diractual {args} ")
         print("Directorio actual:", os.getcwd())
 
     def do_renombrar(self, args):
@@ -62,14 +62,15 @@ class Comandos(Cmd):
 
         if self.confirmarLongitud(len(args), 2, "renombrar"):
             try:
+                self.log(f"renombrar {args} ")
                 os.rename(args[0],args[1])
                 print("<",args[0],">", "fue renombrado a ","<",args[1],">")
             except OSError:
                 print("Error -> nombres y rutas de archivos no válidos o inaccesibles.")
-                logging.error("nombres y rutas de archivos no válidos o inaccesibles. Al ejecutar <renombrar>")
+                self.log_error.error("nombres y rutas de archivos no válidos o inaccesibles. Al ejecutar <renombrar>")
             except Exception as e:
                 print(f" Error: {e} -> al ejecutar <renombrar>")
-                logging.error(f" codigo del error: {e} -> al ejecutar <renombrar>")
+                self.log_error.error(f" codigo del error: {e} -> al ejecutar <renombrar>")
         else:
             pass 
         
@@ -80,7 +81,7 @@ class Comandos(Cmd):
         Manera de ejecucion: listar el directorio actual: < listar >
                              Listar una ruta especifica: listar <ruta>
         """
-         
+        self.log(f"listar {arg} ")
         try:
             if arg == "":
                 dir = os.listdir(path=".")
@@ -95,10 +96,10 @@ class Comandos(Cmd):
                 print("listado del directorio solicitado")
         except OSError:
                 print("Error -> nombres y rutas de archivos no válidos o inaccesibles.")
-                logging.error("nombres y rutas de archivos no válidos o inaccesibles. Al ejecutar <listar>")
+                self.log_error.error("nombres y rutas de archivos no válidos o inaccesibles. Al ejecutar <listar>")
         except Exception as e:
             print(f"Error {e} -> Ejecute help <listar> para mas informacion")
-            logging.error(f" codigo del error: {e} -> Al ejecutar <listar>")
+            self.log_error.error(f" codigo del error: {e} -> Al ejecutar <listar>")
 
     def do_mover(self, args):
         """
@@ -108,6 +109,7 @@ class Comandos(Cmd):
         Manera de ejecutar:-> mover <directorio_actual> <directorio_a_cambiar>
                         -> renombrar: mover <nombre_actual> <nombre_a_cambiar>
         """
+        self.log(f"mover {args} ")
         args = args.split(" ")
         if self.confirmarLongitud(len(args), 2, "mover"):
             try:
@@ -115,10 +117,10 @@ class Comandos(Cmd):
                 print("<",args[0],">", "fue movido a ","<",args[1],">")
             except OSError:
                 print("Error -> nombres y rutas de archivos no válidos o inaccesibles.")
-                logging.error("nombres y rutas de archivos no válidos o inaccesibles. Al ejecutar <mover>")
+                self.log_error.error("nombres y rutas de archivos no válidos o inaccesibles. Al ejecutar <mover>")
             except Exception as e:
                 print(f"Error {e}-> Ejecute help <mover> para mas informacion")
-                logging.error(f" codigo del error: {e} -> Al ejecutar mover")
+                self.log_error.error(f" codigo del error: {e} -> Al ejecutar mover")
         else:
             pass
 
@@ -129,6 +131,7 @@ class Comandos(Cmd):
         Recibe dos parametros-> <nombre del directorio a crear> 
         Manera de ejecutar:-> creardir <nombre_del_directorio>
         """
+        self.log(f"creardir {args} ")
         args = args.split(" ")
         if self.confirmarLongitud(len(args), 1, "creardir"):
             #para crear varias carpeta usar os.makedirs(car1/car2/car3)
@@ -137,10 +140,10 @@ class Comandos(Cmd):
                 print("<",args[0],">", "fue creado")
             except OSError:
                 print("Error -> nombres y rutas de archivos no válidos o inaccesibles.")
-                logging.error("nombres y rutas de archivos no válidos o inaccesibles. Al ejecutar <creardir>")
+                self.log_error.error("nombres y rutas de archivos no válidos o inaccesibles. Al ejecutar <creardir>")
             except Exception as e:
                 print(f"Error {e} -> Ejecute help <creardir> para mas informacion")
-                logging.error(f"Error {e} -> al ejecutar <creardir>")
+                self.log_error.error(f"Error {e} -> al ejecutar <creardir>")
         else:
             pass        
 
@@ -152,6 +155,7 @@ class Comandos(Cmd):
         Recibe dos parametros-> <ruta> <permisos> 
         Manera de ejecutar:-> cambiarpermisos <ruta> <permisos>
         """
+        self.log(f"cambiarpermisos {args} ")
         args = args.split(" ")
         if self.confirmarLongitud(len(args), 2, "cambiarpermisos"):
             try:
@@ -159,10 +163,10 @@ class Comandos(Cmd):
                 print("<",args[0],">", "permisos cambiado")
             except OSError:
                 print("Error -> nombres y rutas de archivos no válidos o inaccesibles.")
-                logging.error("nombres y rutas de archivos no válidos o inaccesibles. Al ejecutar <permisos>")
+                self.log_error.error("nombres y rutas de archivos no válidos o inaccesibles. Al ejecutar <permisos>")
             except Exception as e:
                 print(f"Error {e}-> Ejecute help <permisos> para mas informacion")
-                logging.error(f"codigo del error: {e} -> al ejecutar <permisos> ")
+                self.log_error.error(f"codigo del error: {e} -> al ejecutar <permisos> ")
         else:
             pass
 
@@ -172,6 +176,7 @@ class Comandos(Cmd):
         Recibe dos parametros-> <ruta> <id_propietario> <id_grupo> 
         Manera de ejecutar:-> cambiarpropietario <ruta> <propietario> <grupo>
         """
+        self.log(f"cambiarpropietario {args} ")
         args = args.split(" ")
         if self.confirmarLongitud(len(args), 3,"cambiarpropietario"):
             try:
@@ -183,10 +188,10 @@ class Comandos(Cmd):
                 print("Grupo_id del archivo:", os.stat(args[0]).st_gid)
             except OSError:
                 print("Error -> nombres y rutas de archivos no válidos o inaccesibles.")
-                logging.error("nombres y rutas de archivos no válidos o inaccesibles. Al ejecutar <cambiarpropietario>")
+                self.log_error.error("nombres y rutas de archivos no válidos o inaccesibles. Al ejecutar <cambiarpropietario>")
             except Exception as e:
                 print(f"Error {e}-> Ejecute help <propietario> para mas informacion")
-                logging.error(f" Codigo de error: {e} -> al ejecutar <propietario>")
+                self.log_error.error(f" Codigo de error: {e} -> al ejecutar <propietario>")
         else:
             pass
 
@@ -200,6 +205,7 @@ class Comandos(Cmd):
         #os.system(f"passwd {args}")
         # contra_nueva = getpass.getpass("Introduce el nuevo password")
         # print(contra_nueva)
+        self.log(f"ccontra {args} ")
         os.system("passwd " + args)
 
     def do_nuevoUsuario(self, args):
@@ -209,6 +215,7 @@ class Comandos(Cmd):
         Ejecucion:
             -> nuevoUsuario <nombre de usuario>
         """
+        self.log(f"nuevoUsuario {args} ")
         pass
 
     def do_ftp(self,args):
@@ -216,13 +223,12 @@ class Comandos(Cmd):
         Parametros: [urlFtp] -> Url del servidor FTP.
         Ejecucion: ftp [urlFtp]
         """
+        self.log(f"ftp {args} ")
         ftp = ftplib.FTP(args)
         usuario = input("Introduce el usuario: ")
         contra = getpass.getpass("Introduce la contrasenha: ")
         ftp.login(usuario, contra)
         ftp.quit()
-
-
 
     def do_copia(self, args):
         """Copia el contenido de un archivo a otro
@@ -230,6 +236,7 @@ class Comandos(Cmd):
                     [archivo2]  Archivo destinatario del archivo1.
         Ejecucion: copia [archivo 1] [archivo 2]
         """
+        self.log(f"copia {args} ")
         args = args.split()
         try:
             fileCat = open(args[0], "r")
@@ -240,9 +247,22 @@ class Comandos(Cmd):
             fileCat.close()
         except:
             print(f"El archivo {args[0]}, no se pudo abrir o no existe")
-
-    def do_eliminar(self, args):
-        os.system("rm" + args)
+    
+    #sin llamada al sistema cd
+    def do_ir(self, args):
+        """ Cambiar de Directorio.
+            parametros:[directorio a ser movido.]
+            Ejecucion: ir [directorio deseado]
+         """
+        self.log(f"ir {args} ")
+        args = args.split()
+        try:
+            os.chdir(args[0])  # verificar si realiza una llamada al sistema.
+            print(os.getcwd()) 
+        except:
+            print("No se pudo cambiar de directorio o no existe el directorio seleccionado")
+            self.log_error.error("Error en cambio de directorio")
+            
 
     def do_limpiar(self, args):
         os.system("clear")
@@ -252,28 +272,22 @@ class Comandos(Cmd):
         Parametros: [comando del interprete host]
         Ejecucion: ejecutar <comando>
         """
+        self.log(f"ejecutar {args} ")
         os.system(args)
         # subprocess.call("comando")
         #llama a los comandos del interprete de comandos-host.        
 
 ######################################################################
-    
-    # def do_comandoejemplo(self, args):
-    #     """Ayuda del comando3: ejecuta comando1 y comando2"""
-    #     self.onecmd("comando1")
-    #     self.onecmd("comando2")
 
-    # precmd se ejecuta antes de cada comando, no recomiendo porque puede causar errores en agunos comandos.
-    # def precmd(self, args):
-    #     args = args.lower()
-    #     return(args)
+    def log(self, args):
+        logging.info(f"Se ejecuto el comando -- {args}")
 
     def confirmarLongitud(self,longArg,longOficial,comando):
         if longArg == longOficial:
             return True
         else:
             print(f"Error-> La cantidad de parametros es incorrecta. Ejecute help <{comando}>") 
-            logging.error(f"La cantidad de parametros es incorrecta. Al ejecutar <{comando}>")
+            self.log_error.error(f"La cantidad de parametros es incorrecta. Al ejecutar <{comando}>")
             return False
 
     def emptyline(self):
@@ -283,7 +297,6 @@ class Comandos(Cmd):
         pass
 
     def do_salir(self, args):
-        #logging.info("Finalizacion de sesion")
         print("Hasta pronto!")
         return True 
 
@@ -292,14 +305,7 @@ class Comandos(Cmd):
         logging.warning(f"Ejecuto {args}. No existe el comando ")
         print("Atencion. ",args, " No existe el comando -> Presione help para visualizar los comandos posibles")
     
-    # Forma de documentar metodos,
-    # def help_confirmarLongitud(self):
-    #     print("Verifica la cantidad de parametros enviados al comando.")
 
-
-
-#Funcion main .. Verificamos que al ejecutar el script no sea un modulo importado.
-# Al ejecutar este script importando desde otro script no se ejecuta estas lineas.
 if __name__ == '__main__':
     #pwd.getpwnam(name) retorna una lista con los datos del user name
     user = getpass.getuser()
@@ -322,37 +328,3 @@ if __name__ == '__main__':
         exit()
     else:
         logger.info(f"Cierre de sesion : {user}")
-
-
-
-
-
-    """ Funciones de logging segun el nivel de severidad:
-    Debug: informacion de alguna solucion.
-    info: todo funciona correctamente. 
-    warning: Informacion sobre un posible error.
-    error: error que no permite la ejecucion del metodo.
-    critical:error critico la app ha dejado de funciona.
-
-    Paramatros del basiconfig:
-    format: formato previo al error.
-        %(clientip)s = imprime el client ip
-        %(name)s = imprime el usuario en que se ejecuta.
-    level: nivel de severidad inicial.
-    datefmt: cambiar el formato de la fecha, va de la mano con format.
-
-    obs: El nivel predeterminado es el warning. Si ejecutamos un info depues de un warning, no imprimira nada debido a que warning es mas severo.
-    por ello comenzamos colocando el level de debug.
-
-    para especificar en que archivo se guarda el registro 
-    logger = logging.getLogger('ejemplo_Log')
-    logger.setLevel(logging.DEBUG)
-    fh = logging.FileHandler('debug.log')
-    fh.setLevel(logging.DEBUG)
-    logger.addHandler(fh)
-    logger.debug('mensaje debug')
-    logger.info('mensaje info')
-    logger.warning('mensaje warning')
-    logger.error('mensaje error')
-    logger.critical('mensaje critical')
-    """
