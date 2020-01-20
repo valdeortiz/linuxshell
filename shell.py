@@ -9,13 +9,18 @@ import shutil
 import logging
 import getpass 
 import ftplib
+from datetime import datetime
+import socket
+
+# global archivo = "/var/log"
+global archivo_usuario 
+archivo_usuario = "usuarios_log" # /var/log/usuarios_log
+global archivo_personalHorarios 
+archivo_personalHorarios = "personal_horarios_log" # /var/log/personal_horarios_log
 
 class Comandos(Cmd):
     """lista de comandos 
         copiar -> x ..usamos makefile de shutil podemos hacer con tar, comprimimos despues movemos a donde queremos copiar y lo descomprimimos.
-
-        agregar usuario y registrar sus horarios e ip de conexion. -> 
-        transferencia ftp.
         - Levantar o apagar demonios(Sin llamar a la funcion service).
         -Registrar el inicio de sesión y la salida sesión del usuario. Se puede comparar con los registrosde su horario cada vez que inicia/cierra la sesión y si esta fuera del rango escribir en el archivo de log (personal_horarios_log)un mensaje que aclare que esta fuera del rango y deben agregar el lugar desde donde realizo la conexión que también puede estar fuera de sus IPshabilitado.
         -Ejecutar una transferencia por ftp o scp, se debe registrar en el log Shell_transferencias del usuario.
@@ -26,12 +31,7 @@ class Comandos(Cmd):
     doc_header = "Ayuda de comandos documentados. Presione help <comando>"
     undoc_header="Los siguientes comandos no estan documentados:"
     ruler = "*" # caracter separador al ejecutar help=menu de ayuda
-    
-
-    # En el archivo debe ir el registro de inicio y cierre de sesion.
-    # Los mensajes de error son guardados en un archivo independiente llamado errores_sistema.log que debe ir dentro del archivo /var/log
-    # Un archivo que registre todos los movimientos.
-    
+        
     logging.basicConfig( level=logging.INFO,
                         # formato del horario (YYYY-MM-DD hh:min:sec), 
                         format='%(asctime)s %(name)s %(levelname)s %(message)s', # name es el user, asctime es hora y fecha, levelname: severidad, message: mensaje del error.
@@ -208,28 +208,6 @@ class Comandos(Cmd):
         self.log(f"ccontra {args} ")
         os.system("passwd " + args)
 
-    def do_nuevoUsuario(self, args):
-        """Crea un nuevo usuario en el sistema.
-        parametros:
-            -> [nombre de usuario] []
-        Ejecucion:
-            -> nuevoUsuario <nombre de usuario>
-        """
-        self.log(f"nuevoUsuario {args} ")
-        pass
-
-    def do_ftp(self,args):
-        """Ftp brinda la posibilad de conectarse a traves del protocolo FTP.
-        Parametros: [urlFtp] -> Url del servidor FTP.
-        Ejecucion: ftp [urlFtp]
-        """
-        self.log(f"ftp {args} ")
-        ftp = ftplib.FTP(args)
-        usuario = input("Introduce el usuario: ")
-        contra = getpass.getpass("Introduce la contrasenha: ")
-        ftp.login(usuario, contra)
-        ftp.quit()
-
     def do_copia(self, args):
         """Copia el contenido de un archivo a otro
         Parametros: [archivo1]  Archivo cuyo contenido sera copiado en otro archivo.
@@ -263,20 +241,40 @@ class Comandos(Cmd):
             print("No se pudo cambiar de directorio o no existe el directorio seleccionado")
             self.log_error.error("Error en cambio de directorio")
             
+##################################################################################
+    def do_usuario(self, args):
+        """Crea un nuevo usuario en el sistema. Los datos se guardan dentro del archivo /var/log/usuarios_log.
+        parametros:
+            -> [nombre de usuario] [hora de entrada] [hora de salida] [ip de conexion]
+        Ejecucion:
+            -> usuario <nombre de usuario> <hora de entrada> <hora de salida> <ip de conexion>
+        """
+        self.log(f"usuario {args} ")
+        if len(args.split(" ")) < 4:
+            self.confirmarLongitud(0,1,"usuario")
+            pass
+        else:
+            with open(archivo_usuario, "a") as f:
+                f.write(args + "\n")
+                print("Usuario Registrado en /var/log/usuarios_log")
+        
+        
+        
+    def do_ftp(self,args):
+        """Ftp brinda la posibilad de conectarse a traves del protocolo FTP.
+        Parametros: [urlFtp] -> Url del servidor FTP.
+        Ejecucion: ftp [urlFtp]
+        """
+        self.log(f"ftp {args} ")
+        ftp = ftplib.FTP(args)
+        usuario = input("Introduce el usuario: ")
+        contra = getpass.getpass("Introduce la contrasenha: ")
+        ftp.login(usuario, contra)
+        ftp.quit()
 
     def do_limpiar(self, args):
         os.system("clear")
-
-    def do_ejecutar(self, args):
-        """ Ejecuta un comando del sistema
-        Parametros: [comando del interprete host]
-        Ejecucion: ejecutar <comando>
-        """
-        self.log(f"ejecutar {args} ")
-        os.system(args)
-        # subprocess.call("comando")
-        #llama a los comandos del interprete de comandos-host.        
-
+       
 ######################################################################
 
     def log(self, args):
@@ -300,15 +298,76 @@ class Comandos(Cmd):
         print("Hasta pronto!")
         return True 
 
+    def do_ejecutar(self, args):
+        """ Ejecuta un comando del sistema
+        Parametros: [comando del interprete host]
+        Ejecucion: ejecutar <comando>
+        """
+        self.log(f"ejecutar {args} ")
+        os.system(args)
+        # subprocess.call("comando")
+        #llama a los comandos del interprete de comandos-host. 
+
     def default(self, args):
         """ Se ejecuta en caso de un comando no valido"""
         logging.warning(f"Ejecuto {args}. No existe el comando ")
         print("Atencion. ",args, " No existe el comando -> Presione help para visualizar los comandos posibles")
     
+class UsuarioNoEncontradoError(Exception):
+    """Clase base para excepciones en el módulo."""
+    pass
+
+def ipVerificacion(ipList, ipDeConexion):
+    for ip in ipList:
+        if ip == ipDeConexion:
+            return ipDeConexion
+    else:
+        return f"Ip no registrado = {ipDeConexion}"
+
+
+def inicioDeSesion(user, ip):
+    """Funcion para verificar la existencia del usuario, si se encuentra en horario laboral y con alguna ip reconocidad
+        Parametros: [user] -> Es el nombre de usuario de la maquina que se conecto.
+                    [ip] -> ip de la maquina conectada.
+        Funcion:- Hacemos uso de dos archivos, el principal usuarios_log que es donde se encuentra los datos de los usuarios registrados
+            y personal_horarios_log donde guardamos las conexiones y si fue en horario o no. Ambos son abierto en modo append(agregar).
+            - hacemos uso de los metodos proporcionados por datetime para la manipulacion de fechas.
+        Excepciones: Tenemos una excepcion en el caso de que no se encuentre registrado el usuario en el archivo usuarios_log
+    """
+    usuario = user
+    ipDeConexion = ip            
+    with open(archivo_usuario,"a+") as archivoUsuario: 
+        try:
+            for linea in archivoUsuario:
+                usuario_info = linea.split() 
+                if usuario == usuario_info[0]:
+                    hora_entrada = datetime.strptime(usuario_info[1], "%H:%M") 
+                    hora_salida = datetime.strptime(usuario_info[2], "%H:%M") 
+                    ips = usuario_info[3:]
+                    strIp = ipVerificacion(ips, ipDeConexion)
+                    #abrir con whith
+                    archivoPersonalHorario = open(archivo_personalHorarios, "a+")
+                    horario_actual = datetime.now() 
+                    if hora_entrada.strftime("%H:%M") <= horario_actual.strftime("%H:%M") <= hora_salida.strftime("%H:%M"):
+                        horario_actual = horario_actual.strftime("%m/%d/%Y, %H:%M:%S")
+                        archivoPersonalHorario.write(f"{ horario_actual } - {usuario} Se conecto dentro de su horario, IP: {strIp} \n")
+                        archivoPersonalHorario.close() 
+                    else:
+                        horario_actual = horario_actual.strftime("%m/%d/%Y, %H:%M:%S")
+                        archivoPersonalHorario.write(f"{horario_actual} - {usuario} Se conecto fuera del horario, IP: {strIp} \n")
+                        archivoPersonalHorario.close() 
+                    break
+            else:
+                raise UsuarioNoEncontradoError()
+        except UsuarioNoEncontradoError:
+            print("Atencion: No se encontro su usuario en el registro: Ejecute <nuevoUsuario> para registarse o <help nuevoUsuario> para mas ayuda. \n")
+
 
 if __name__ == '__main__':
     #pwd.getpwnam(name) retorna una lista con los datos del user name
     user = getpass.getuser()
+    nombre_equipo = socket.gethostname()
+    ipDeConexion = socket.gethostbyname(nombre_equipo)
 
     logger = logging.getLogger('sesion_Log')
     logger.setLevel(logging.DEBUG)
@@ -321,6 +380,7 @@ if __name__ == '__main__':
     
     try:
         logger.info(f"{user} - Inicio sesion")
+        inicioDeSesion(user, ipDeConexion) # 
         Comandos().cmdloop()
     except KeyboardInterrupt:
         print(f"\nCierre de sesion : {user} - Interrupcion de teclado")
@@ -328,3 +388,35 @@ if __name__ == '__main__':
         exit()
     else:
         logger.info(f"Cierre de sesion : {user}")
+
+
+"""
+-copiar(sin llamada al sistema de la funcion cp)
+-mover - mover
+-renombrar - renombrar
+-listar un directorio(sin ls)
+-crear un directorio - creardir
+-cambiar de directorio(sin cd)- ir
+-cambiar los permisos sobre un archivo o conjunto de archivos - permisos
+-cambiar los propietarios sobre un archivo o conjunto de archivos - propietarios
+-cambiar la contraseña - contraseña
+- proveer la capacidad de poder ejecutar comandos del sistema
+
+-Agregar usuario, y deben de registrar los datos personales del mismo incluyendo su horario de trabajo 
+y posibles lugares de conexion(ejemplo ips o localhost)- usuario
+    Solo en usuarios_log?
+- Registrar el inicio de sesion y la salida sesion del ususario. 
+Se puede comparar con los registros de su horario cada vez que inicia/cierra sesion y si esta fuera de su rango escribir en el archivo
+de log ""(personal_horarios_log)"" un mensaje que aclare que esta fuera del rango y deben agregar el lugar donde realizo la conexion
+que tambien puede estar fuera de sus ips habilitado.
+
+- El usuario puede levantar o bajar demonios dentro del sistema, utilizando un sitema parecido a service(sin llamar a service)- 
+-Ejecutar una transferencia ftp o scp, se debe registrar en el "log Shell_transferencias" del usuario
+
+usuarios.log 
+<user> <horario_entrada> <horario_salida> <ip>
+
+#########
+los errores deben ir en /var/log con nombre errores_sistema.log
+
+"""
