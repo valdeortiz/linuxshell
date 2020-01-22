@@ -42,19 +42,254 @@ Desde nuestro interprete de comandos(host, ejemplo bash o zsh). Ingresamos a la 
 
 ## Comandos ⌨️
 
-1. Copiar: Copiar un archivo o directorio de una ruta a otra.
-2. Mover: Mueve un archivo o directorio de una ruta a otra.
-3. Renombrar: Renonbra un archivo o directorio.
-4. Listar: Lista el contenido del directorio actual.
-5. Creardir: Crea un directorio.
-6. Cdir: Cambiar de directorio.
-7. Cpermisos: Cambiar de permisos.
-8. Cpropietarios: Cambiar de propietarios.
-9. Ccontra: Cambiar contrasena.
-10. Nuevousuario: Crear un usuario.
-11. Deminios: Levanta o apaga demonios.
-12. Ejecutar: Ejecuta cualquier comando de del Interprete de comando Host.
+1. Copiar archivos/directorio.
+<details>
+**Descripcion:**
+Copia un archivo o directorio de un lugar a otro 
 
+**Argumentos:**
+- Archivo1: El archivo a ser copiado.
+- ruta Destino: Ruta destino.
+
+Examples:
+
+```copia archivo1 destino
+```
+
+**Retorno:**
+En caso de realizar con exito la copia se imprime un mensaje de exito.
+En caso de producirse un error se imprime un mensaje del error producido.
+
+</details>
+
+2. Mover
+
+<details>
+**Descripcion:**
+Mueve un archivo o directorio de una ruta a otra. 
+
+**Argumentos:**
+- Archivo1: El archivo a ser movido.
+- ruta Destino: Ruta destino.
+
+Examples:
+
+```mover archivo1 destino
+```
+
+**Retorno:**
+En caso de realizar con exito la copia se imprime un mensaje de exito.
+En caso de producirse un error se imprime un mensaje del error producido.
+
+</details>
+
+3. Renombrar
+
+<details>
+**Descripcion:**
+Renombrar un archivo o directorio.
+
+**Argumentos:**
+- Archivo1: El archivo a ser renombrado.
+- nombre a colocar: Nmobre deseado.
+
+Examples:
+
+```renombrar archivoActual nombreNuevo
+```
+
+**Retorno:**
+En caso de realizar con exito la copia se imprime un mensaje de exito.
+En caso de producirse un error se imprime un mensaje del error producido.
+
+</details>
+
+4. Listar
+
+<details>
+**Descripcion:**
+Lista el contenido del directorio actual. OBS: tambien imprime los archivos ocultos.
+
+**Argumentos:**
+- sin argumentos lista el directorio altual.
+- con el argumento [ruta] : lista el directorio colocado en [ruta]
+
+Examples:
+
+```listar ruta
+```
+
+**Retorno:**
+En caso de realizar con exito la copia se imprime un mensaje de exito.
+En caso de producirse un error se imprime un mensaje del error producido.
+
+</details>
+
+5. Creardir
+
+<details>
+**Descripcion:**
+Crea un directorio nuevo en el directorio actual.
+
+**Argumentos:**
+- nombre : nombre del directorio a ser creado.
+
+Examples:
+
+```creadir nombre
+```
+
+**Retorno:**
+En caso de realizar con exito la copia se imprime un mensaje de exito.
+En caso de producirse un error se imprime un mensaje del error producido.
+
+</details>
+
+6. Crear directorios.
+<details>
+**Descripcion:**
+Cambiar de directorio.
+
+**Argumentos:**
+- ruta Destino: Ruta a ser dirigido.
+
+Examples:
+
+```cdir destino
+```
+
+**Retorno:**
+En caso de realizar con exito la copia se imprime un mensaje de exito.
+En caso de producirse un error se imprime un mensaje del error producido.
+
+</details>
+
+7. Cambiar permisos.
+
+<details>
+**Descripcion:**
+Cambiar de permisos de un archivo.
+
+**Argumentos:**
+- Archivo: El archivo a ser cambiado.
+- permisos: Los permisos deseados.
+
+Examples:
+
+```cambiarpermisos archivo permisos
+```
+
+**Retorno:**
+En caso de realizar con exito la copia se imprime un mensaje de exito.
+En caso de producirse un error se imprime un mensaje del error producido.
+
+</details>
+
+8. Cambiar propietarios.
+
+<details>
+**Descripcion:**
+ Cambiar de propietarios de un archivo.
+
+**Argumentos:**
+- Archivo1: El archivo a ser copiado.
+- id propietario deseado:id del propietario nuevo.
+- id del grupo: id del grupo a ser asignado.
+
+Examples:
+
+```cambiarpropietario propietarios archivo1 Idpropietario idGrupo
+```
+
+**Retorno:**
+En caso de realizar con exito la copia se imprime un mensaje de exito.
+En caso de producirse un error se imprime un mensaje del error producido.
+
+</details>
+
+9. Cambiar contrasenha:
+
+<details>
+**Descripcion:**
+ Cambiar contrasena de un usuario.
+
+**Argumentos:**
+- usuario: usuario a ser cambiado su contrasenha
+
+Examples:
+
+```cambiarcontra archivo1 destino
+```
+
+**Retorno:**
+En caso de realizar con exito la copia se imprime un mensaje de exito.
+En caso de producirse un error se imprime un mensaje del error producido.
+
+</details>
+
+10. Nuevo usuario.
+
+<details>
+**Descripcion:**
+Crear un usuario en el archivo usuarios_log que esta en /var/log/usuarios_log
+
+**Argumentos:**
+- nombre: Nombre del usuario a ser ingresado al usuarios_log.
+- Horario de entrada: su horario de entrada.
+- horario de salida: su horario maximo.
+- ip: su lista de posibles conexiones. 
+
+Examples:
+
+```usuario mombre horario_entrada horario_salida ips
+```
+
+**Retorno:**
+En caso de realizar con exito la copia se imprime un mensaje de exito.
+En caso de producirse un error se imprime un mensaje del error producido.
+
+</details>
+
+11. servicios.
+
+<details>
+**Descripcion:**
+Levanta o apaga demonios.
+
+**Argumentos:**
+- demonio: nombre del demonio.
+- accion: accion a ejecutar
+
+Examples:
+
+```servicio demonio accion
+```
+
+**Retorno:**
+En caso de realizar con exito la copia se imprime un mensaje de exito.
+En caso de producirse un error se imprime un mensaje del error producido.
+
+</details>
+
+12. Ejecutar comando fuera de la shell.
+
+<details>
+**Descripcion:**
+Ejecuta cualquier comando de del Interprete de comando Host.
+
+**Argumentos:**
+- comando: comando a ser ejecutado.
+
+Examples:
+
+```ejecutar comando
+```
+
+**Retorno:**
+En caso de realizar con exito la copia se imprime un mensaje de exito.
+En caso de producirse un error se imprime un mensaje del error producido.
+
+</details>
 
 > ***PARA LISTAR LOS COMANDOS. EJECUTAR***
 
@@ -62,19 +297,6 @@ Desde nuestro interprete de comandos(host, ejemplo bash o zsh). Ingresamos a la 
 
 ---
 
-## Modo de ejecucion de cada comando.
-    copiar <diractual> <dirnuevo>    
-    mover <diractual> <dirnuevo>
-    renombrar <nom_antes> <nom_actual>
-    listar 
-    creadir <nombre>
-    cdir <dir_pasado> <dir_nuevo>
-    cpermisos <archivo> <permisos>
-    cpropietarios <archivo> <id-propietarios>
-    ccontra
-    nuevousuario
-    demonios
-    ejecutar <comando>
 
 > ***PARA LEER LA DOCUMENTACION EJECUTA***
 

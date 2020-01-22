@@ -208,6 +208,7 @@ class Comandos(Cmd):
         #os.system(f"passwd {args}")
         # contra_nueva = getpass.getpass("Introduce el nuevo password")
         # print(contra_nueva)
+        # verificar si se cambia contrase;a en usuarios_log
         self.log(f"ccontra {args} ")
         os.system("passwd " + args)
 
