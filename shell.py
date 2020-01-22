@@ -11,6 +11,9 @@ import getpass
 import ftplib
 from datetime import datetime
 import socket
+import psutil
+from multiprocessing import Process
+import subprocess
 
 # global archivo = "/var/log"
 global archivo_usuario 
@@ -257,9 +260,7 @@ class Comandos(Cmd):
             with open(archivo_usuario, "a") as f:
                 f.write(args + "\n")
                 print("Usuario Registrado en /var/log/usuarios_log")
-        
-        
-        
+          
     def do_ftp(self,args):
         """Ftp brinda la posibilad de conectarse a traves del protocolo FTP.
         Parametros: [urlFtp] -> Url del servidor FTP.
@@ -274,6 +275,55 @@ class Comandos(Cmd):
 
     def do_limpiar(self, args):
         os.system("clear")
+
+    def do_servicio(self,args):
+        """
+        Comando Servicio se utiliza para poder matar-para-iniciar demonios. 
+        Recibe dos parametros-> <nombre del demonio> <accion a ejecutar>
+        Manera de ejecutar:-> servicio <nombre del demonio> <accion a ejecutar>
+        """
+        # llamar al comando jobs y stdOut agregar a una lista. comparar el proceso enviado atravez de arg com la lista y verificar si existe
+        # para lanzar un comando en segundo plano se agrega & al final del comando
+        # fg %id es para recuperar un servicio en segundo plano (podemos ver el id ejecutando jobs)
+        # bg %id es para que una vez estando en segundo plano(crtl + z) pasar de detenido a en marcha
+        # kill %id es para matar el procso
+        self.log(f"servicio {args} ")
+        args = args.split(" ")
+        if self.confirmarLongitud(len(args), 2, "servicio"):
+            # systemctl list-unit-files --state=enabled para los  deamons activos
+            # guardar la salida del comando y verificar si dentro se encuentra el nombre
+            procName = args[0]
+            procs = []
+            processList = [p.info for p in psutil.process_iter(attrs=['pid', 'name']) if procName in p.info['name']]
+            #los procesos deamon tienen una d al final
+            #como saber si es un servicio(deamon) o un proceso
+
+            for x in processList:
+                if psutil.Process(x["pid"]).status().upper() == psutil.STATUS_SLEEPING.upper():
+                    procs.append(x)
+            
+            if len(procs) == 0:
+                print("No se encontro su demonio")
+                return False
+
+            try:
+                print(procs)                
+                for proc in procs: 
+                    if args[1] == "levantar":
+                        psutil.Process(proc["pid"]).resume() #reanuda la ejecucion del proceso
+                        print("Demonio levantado con exito")
+                    elif args[1] == "bajar":
+                        #proc.terminate() # la diferencia con kill, este espera al proceso a que termine sus tareas
+                        psutil.Process(proc["pid"]).kill()
+                        print("Demonio bajado con exito")
+                    break
+                    # checamos si el nombre se encuentra en la lista y luego ejecutamos la funcion kill(matar)                
+            except Exception as e:
+                print(f"Error {e} -> Ejecute help <servicio> para mas informacion")
+                self.log_error.error(f"Error {e} -> al ejecutar <servicio>")
+        else:
+            pass  
+        
        
 ######################################################################
 
@@ -313,6 +363,7 @@ class Comandos(Cmd):
         logging.warning(f"Ejecuto {args}. No existe el comando ")
         print("Atencion. ",args, " No existe el comando -> Presione help para visualizar los comandos posibles")
     
+
 class UsuarioNoEncontradoError(Exception):
     """Clase base para excepciones en el módulo."""
     pass
@@ -323,7 +374,6 @@ def ipVerificacion(ipList, ipDeConexion):
             return ipDeConexion
     else:
         return f"Ip no registrado = {ipDeConexion}"
-
 
 def inicioDeSesion(user, ip):
     """Funcion para verificar la existencia del usuario, si se encuentra en horario laboral y con alguna ip reconocidad
@@ -336,7 +386,7 @@ def inicioDeSesion(user, ip):
     """
     usuario = user
     ipDeConexion = ip            
-    with open(archivo_usuario,"a+") as archivoUsuario: 
+    with open(archivo_usuario,"r+") as archivoUsuario: 
         try:
             for linea in archivoUsuario:
                 usuario_info = linea.split() 
@@ -352,15 +402,21 @@ def inicioDeSesion(user, ip):
                         horario_actual = horario_actual.strftime("%m/%d/%Y, %H:%M:%S")
                         archivoPersonalHorario.write(f"{ horario_actual } - {usuario} Se conecto dentro de su horario, IP: {strIp} \n")
                         archivoPersonalHorario.close() 
+                        return f"{usuario}: Se conecto dentro de su horario, IP: {strIp} \n"
                     else:
                         horario_actual = horario_actual.strftime("%m/%d/%Y, %H:%M:%S")
                         archivoPersonalHorario.write(f"{horario_actual} - {usuario} Se conecto fuera del horario, IP: {strIp} \n")
                         archivoPersonalHorario.close() 
+                        return f"{usuario}: Se conecto fuera del horario, IP: {strIp} \n"
                     break
             else:
                 raise UsuarioNoEncontradoError()
         except UsuarioNoEncontradoError:
             print("Atencion: No se encontro su usuario en el registro: Ejecute <nuevoUsuario> para registarse o <help nuevoUsuario> para mas ayuda. \n")
+
+def demonios(args):
+    jobs = subprocess.check_output("jobs")
+    jobs = jobs.split(" ")
 
 
 if __name__ == '__main__':
@@ -368,7 +424,7 @@ if __name__ == '__main__':
     user = getpass.getuser()
     nombre_equipo = socket.gethostname()
     ipDeConexion = socket.gethostbyname(nombre_equipo)
-
+    
     logger = logging.getLogger('sesion_Log')
     logger.setLevel(logging.DEBUG)
     fh = logging.FileHandler('sesion.log')
@@ -380,7 +436,8 @@ if __name__ == '__main__':
     
     try:
         logger.info(f"{user} - Inicio sesion")
-        inicioDeSesion(user, ipDeConexion) # 
+        result = inicioDeSesion(user, ipDeConexion) # 
+        print(result)
         Comandos().cmdloop()
     except KeyboardInterrupt:
         print(f"\nCierre de sesion : {user} - Interrupcion de teclado")
@@ -396,7 +453,7 @@ if __name__ == '__main__':
 -renombrar - renombrar
 -listar un directorio(sin ls)
 -crear un directorio - creardir
--cambiar de directorio(sin cd)- ir
+***-cambiar de directorio(sin cd)- ir
 -cambiar los permisos sobre un archivo o conjunto de archivos - permisos
 -cambiar los propietarios sobre un archivo o conjunto de archivos - propietarios
 -cambiar la contraseña - contraseña
@@ -420,3 +477,84 @@ usuarios.log
 los errores deben ir en /var/log con nombre errores_sistema.log
 
 """
+
+
+"""
+class testdaemon(daemon.Daemon):
+    def run(self):
+        self.i = 0
+        with open('test1.txt', 'w') as f:
+            f.write(str(self.i))
+        while True:
+            self.i += 1
+            time.sleep(1)
+
+    def quit(self):
+        with open('test2.txt', 'w') as f:
+            f.write(str(self.i))
+
+daemon = testdaemon()
+
+if 'start' == sys.argv[1]: 
+    daemon.start()
+elif 'stop' == sys.argv[1]: 
+    daemon.stop()
+elif 'restart' == sys.argv[1]: 
+    daemon.restart()
+
+"""
+
+# class MyProcessAbstraction(object):
+#     def __init__(self, parent_pid, command):
+#         """
+#         @type parent_pid: int
+#         @type command: str
+#         """
+#         self._child = None
+#         self._cmd = command
+#         self._parent = psutil.Process(pid=parent_pid)
+
+#     def run_child(self):
+#         """
+#         Start a child process by running self._cmd. 
+#         Wait until the parent process (self._parent) has died, then kill the 
+#         child.
+#         """
+#         print '---- Running command: "%s" ----' % self._cmd
+#         self._child = psutil.Popen(self._cmd)
+#         try:
+#             while self._parent.status == psutil.STATUS_RUNNING:
+#                 sleep(1)
+#         except psutil.NoSuchProcess:
+#             pass
+#         finally:
+#             print '---- Terminating child PID %s ----' % self._child.pid
+#             self._child.terminate()
+
+    
+    # def reap_children(self,timeout=3, proceso):
+    #     "Tries hard to terminate and ultimately kill all the children of this process."
+    #     def on_terminate(proc):
+    #         print("process {} terminated with exit code {}".format(proc, proc.returncode))
+
+    #     procs = psutil.Process(proceso).children()
+    #     # send SIGTERM
+    #     for p in procs:
+    #         try:
+    #             p.terminate()
+    #         except psutil.NoSuchProcess:
+    #             pass
+    #     gone, alive = psutil.wait_procs(procs, timeout=timeout, callback=on_terminate)
+    #     if alive:
+    #         # send SIGKILL
+    #         for p in alive:
+    #             print("process {} survived SIGTERM; trying SIGKILL".format(p))
+    #             try:
+    #                 p.kill()
+    #             except psutil.NoSuchProcess:
+    #                 pass
+    #         gone, alive = psutil.wait_procs(alive, timeout=timeout, callback=on_terminate)
+    #         if alive:
+    #             # give up
+    #             for p in alive:
+    #                 print("process {} survived SIGKILL; giving up".format(p))
