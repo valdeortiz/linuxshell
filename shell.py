@@ -12,34 +12,31 @@ import ftplib
 from datetime import datetime
 import socket
 import psutil
-from multiprocessing import Process
-import subprocess
+#from multiprocessing import Process
+#import subprocess
 
-# global archivo = "/var/log"
-global archivo_usuario 
+#archivo = "/var/log"
 archivo_usuario = "usuarios_log" # /var/log/usuarios_log
-global archivo_personalHorarios 
 archivo_personalHorarios = "personal_horarios_log" # /var/log/personal_horarios_log
 
 class Comandos(Cmd):
-    """lista de comandos 
-        copiar -> x ..usamos makefile de shutil podemos hacer con tar, comprimimos despues movemos a donde queremos copiar y lo descomprimimos.
-        - Levantar o apagar demonios(Sin llamar a la funcion service).
-        -Registrar el inicio de sesión y la salida sesión del usuario. Se puede comparar con los registrosde su horario cada vez que inicia/cierra la sesión y si esta fuera del rango escribir en el archivo de log (personal_horarios_log)un mensaje que aclare que esta fuera del rango y deben agregar el lugar desde donde realizo la conexión que también puede estar fuera de sus IPshabilitado.
-        -Ejecutar una transferencia por ftp o scp, se debe registrar en el log Shell_transferencias del usuario.
+    """Clase principal que hereda de Cmd que tiene los metodos principales para la construccion de cmd.
     """
-    intro = "***  Shell  *** \n=> introduzca <help> para visualizar los comandos." #Interprete de comandos FiOS.
-    prompt = "Introduza un comando: "
-    misc_header="Documentacion de los metodos"
+    # Atributos de la clase Cmd
+    intro = "***  Shell  *** \n=> introduzca <help> para visualizar los comandos." #Mensaje de bienvenida al ejecutarse la shell
+    prompt = "Introduza un comando: " #mensaje a la izquierda del comando
+    misc_header="Documentacion de los metodos" 
     doc_header = "Ayuda de comandos documentados. Presione help <comando>"
     undoc_header="Los siguientes comandos no estan documentados:"
     ruler = "*" # caracter separador al ejecutar help=menu de ayuda
-        
+    
+    #Creamos nuestro logger principal y usamos el metodo basicConfig para configurar 
     logging.basicConfig( level=logging.INFO,
                         # formato del horario (YYYY-MM-DD hh:min:sec), 
                         format='%(asctime)s %(name)s %(levelname)s %(message)s', # name es el user, asctime es hora y fecha, levelname: severidad, message: mensaje del error.
                         filename="Shell_FiOs.log")
 
+    #creamos otro logger para guardar los errores del sistema
     log_error = logging.getLogger("")
     fhp = logging.FileHandler("errores_sistema.log")
     fhp.setLevel(logging.ERROR)
@@ -210,8 +207,11 @@ class Comandos(Cmd):
         # print(contra_nueva)
         # verificar si se cambia contrase;a en usuarios_log
         self.log(f"ccontra {args} ")
-        os.system("passwd " + args)
-
+        if self.confirmarLongitud(len(args), 1,"cambiarContrsenha" ):
+            os.system("passwd " + args)
+        
+        
+                    
     def do_copia(self, args):
         """Copia el contenido de un archivo a otro
         Parametros: [archivo1]  Archivo cuyo contenido sera copiado en otro archivo.
@@ -255,10 +255,9 @@ class Comandos(Cmd):
         """
         self.log(f"usuario {args} ")
         if len(args.split(" ")) < 4:
-            self.confirmarLongitud(0,1,"usuario")
-            pass
+            self.confirmarLongitud(0,1,"usuario") # forzamos una salida erronea
         else:
-            with open(archivo_usuario, "a") as f:
+            with open(archivo_usuario, "a") as f: # abrimos el archivo y colocamos la informacion al final del archivo
                 f.write(args + "\n")
                 print("Usuario Registrado en /var/log/usuarios_log")
           
@@ -268,9 +267,9 @@ class Comandos(Cmd):
         Ejecucion: ftp [urlFtp]
         """
         self.log(f"ftp {args} ")
-        ftp = ftplib.FTP(args)
         usuario = input("Introduce el usuario: ")
         contra = getpass.getpass("Introduce la contrasenha: ")
+        ftp = ftplib.FTP(args)
         ftp.login(usuario, contra)
         ftp.quit()
 
@@ -291,6 +290,7 @@ class Comandos(Cmd):
         self.log(f"servicio {args} ")
         args = args.split(" ")
         if self.confirmarLongitud(len(args), 2, "servicio"):
+            # subprocess.checkoutput(systemctl list-unit-files --state=enabled)
             # systemctl list-unit-files --state=enabled para los  deamons activos
             # guardar la salida del comando y verificar si dentro se encuentra el nombre
             procName = args[0]
@@ -326,7 +326,7 @@ class Comandos(Cmd):
             pass  
         
        
-######################################################################
+########################################################################################################################
 
     def log(self, args):
         logging.info(f"Se ejecuto el comando -- {args}")
@@ -340,24 +340,23 @@ class Comandos(Cmd):
             return False
 
     def emptyline(self):
-        """No realiza ninguna accion"""
-        print("Ningun comando ejecutado.")
+        """En caso de ejecutar una lina vacia, simplemente un enter se emite un mensaje de advertencia"""
+        print("ADVERTENCIA: Ningun comando ejecutado.")
         logging.warning("Ningun comando ejecutado")
         pass
 
     def do_salir(self, args):
+        """Termina el loop y emite un mensaje de despedida """
         print("Hasta pronto!")
         return True 
 
     def do_ejecutar(self, args):
-        """ Ejecuta un comando del sistema
+        """ Ejecuta un comando con interprete host.
         Parametros: [comando del interprete host]
         Ejecucion: ejecutar <comando>
         """
         self.log(f"ejecutar {args} ")
         os.system(args)
-        # subprocess.call("comando")
-        #llama a los comandos del interprete de comandos-host. 
 
     def default(self, args):
         """ Se ejecuta en caso de un comando no valido"""
@@ -366,10 +365,11 @@ class Comandos(Cmd):
     
 
 class UsuarioNoEncontradoError(Exception):
-    """Clase base para excepciones en el módulo."""
+    """Clase base para excepciones en el módulo. La utilizmos en caso de que no se encuentre el usuario en usuarios_log"""
     pass
 
 def ipVerificacion(ipList, ipDeConexion):
+    """verificamos que la ip de conexion se encuentre en la lista de posibles ips registradas en usuarios_log """
     for ip in ipList:
         if ip == ipDeConexion:
             return ipDeConexion
@@ -383,52 +383,60 @@ def inicioDeSesion(user, ip):
         Funcion:- Hacemos uso de dos archivos, el principal usuarios_log que es donde se encuentra los datos de los usuarios registrados
             y personal_horarios_log donde guardamos las conexiones y si fue en horario o no. Ambos son abierto en modo append(agregar).
             - hacemos uso de los metodos proporcionados por datetime para la manipulacion de fechas.
-        Excepciones: Tenemos una excepcion en el caso de que no se encuentre registrado el usuario en el archivo usuarios_log
+        Excepciones: La primera excepcion es en el caso de que no exista el archivo usuarios_log. Nos devuelve un aviso.
+            Tenemos una excepcion en el caso de que no se encuentre registrado el usuario en el archivo usuarios_log
     """
     usuario = user
-    ipDeConexion = ip            
-    with open(archivo_usuario,"r+") as archivoUsuario: 
-        try:
-            for linea in archivoUsuario:
-                usuario_info = linea.split() 
-                if usuario == usuario_info[0]:
-                    hora_entrada = datetime.strptime(usuario_info[1], "%H:%M") 
-                    hora_salida = datetime.strptime(usuario_info[2], "%H:%M") 
-                    ips = usuario_info[3:]
-                    strIp = ipVerificacion(ips, ipDeConexion)
-                    #abrir con whith
-                    archivoPersonalHorario = open(archivo_personalHorarios, "a+")
-                    horario_actual = datetime.now() 
-                    if hora_entrada.strftime("%H:%M") <= horario_actual.strftime("%H:%M") <= hora_salida.strftime("%H:%M"):
-                        horario_actual = horario_actual.strftime("%m/%d/%Y, %H:%M:%S")
-                        archivoPersonalHorario.write(f"{ horario_actual } - {usuario} Se conecto dentro de su horario, IP: {strIp} \n")
-                        archivoPersonalHorario.close() 
-                        return f"{usuario}: Se conecto dentro de su horario, IP: {strIp} \n"
-                    else:
-                        horario_actual = horario_actual.strftime("%m/%d/%Y, %H:%M:%S")
-                        archivoPersonalHorario.write(f"{horario_actual} - {usuario} Se conecto fuera del horario, IP: {strIp} \n")
-                        archivoPersonalHorario.close() 
-                        return f"{usuario}: Se conecto fuera del horario, IP: {strIp} \n"
-                    break
-            else:
-                raise UsuarioNoEncontradoError()
-        except UsuarioNoEncontradoError:
-            print("Atencion: No se encontro su usuario en el registro: Ejecute <nuevoUsuario> para registarse o <help nuevoUsuario> para mas ayuda. \n")
+    ipDeConexion = ip
+    horario_actual = datetime.now()
+    try:
+        with open(archivo_usuario,"r+") as archivoUsuario: 
+            try:
+                for linea in archivoUsuario:
+                    usuario_info = linea.split() 
+                    if usuario == usuario_info[0]:
+                        hora_entrada = datetime.strptime(usuario_info[1], "%H:%M") 
+                        hora_salida = datetime.strptime(usuario_info[2], "%H:%M") 
+                        ips = usuario_info[3:]
+                        strIp = ipVerificacion(ips, ipDeConexion)
+                        if hora_entrada.strftime("%H:%M") <= horario_actual.strftime("%H:%M") <= hora_salida.strftime("%H:%M"):
+                            horario_actual = horario_actual.strftime("%m/%d/%Y, %H:%M:%S")
+                            return f"{ horario_actual } - {usuario} Se conecto dentro de su horario, IP: {strIp}"
+                        else:
+                            horario_actual = horario_actual.strftime("%m/%d/%Y, %H:%M:%S")
+                            return f"{horario_actual} - {usuario} Se conecto fuera del horario, IP: {strIp}"
+                        break
+                else:
+                    raise UsuarioNoEncontradoError()
+            except UsuarioNoEncontradoError:
+                horario_actual = horario_actual.strftime("%m/%d/%Y, %H:%M:%S")
+                return f"{horario_actual}: Usuario desconocido se conecto, IP: {ipDeConexion}"
+    except FileNotFoundError:
+        return "No hay usuarios registrados en usuarios_log. Para un nuevo usuario ejecute el comando <usuario>"
 
-def demonios(args):
-    jobs = subprocess.check_output("jobs")
-    jobs = jobs.split(" ")
-
+def captureIp():
+    """Hacemos ping a 8.8.8.8 en el puerto 80 y solicitamos los datos que nos devulve una tupla (ipPrivada, tiempo)
+        y como nos interesa solo la ip privada accedemos al primer elemento y retornamos.
+    """
+    try:
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.connect(("8.8.8.8", 80))
+        ipDeConexion = s.getsockname()[0]
+        s.close()
+        return ipDeConexion
+    except Exception:
+        return "0.0.0.0"
+    
 
 if __name__ == '__main__':
     #pwd.getpwnam(name) retorna una lista con los datos del user name
-    user = getpass.getuser()
-    nombre_equipo = socket.gethostname()
-    ipDeConexion = socket.gethostbyname(nombre_equipo)
-    
-    logger = logging.getLogger('sesion_Log')
+    user = getpass.getuser() # capturamos el nombre de usuario de la pc.
+    #nombre_equipo = socket.gethostname()
+    ipDeConexion = captureIp() #capturamos la ip de la pc 
+    # creamos un nuevo log con nombre sesion_log
+    logger = logging.getLogger(archivo_personalHorarios)
     logger.setLevel(logging.DEBUG)
-    fh = logging.FileHandler('sesion.log')
+    fh = logging.FileHandler(archivo_personalHorarios) #/var/log/archivo_personal
     fh.setLevel(logging.DEBUG)
     logger.addHandler(fh)
     formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -436,15 +444,15 @@ if __name__ == '__main__':
     logger.addHandler(fh)
     
     try:
-        logger.info(f"{user} - Inicio sesion")
-        result = inicioDeSesion(user, ipDeConexion) # 
+        result = inicioDeSesion(user, ipDeConexion) # verificamos el inicio de sesion
         print(result)
-        Comandos().cmdloop()
-    except KeyboardInterrupt:
+        logger.info(result) # guardamos en nuestro archivo de inicio de sesion
+        Comandos().cmdloop()  # iniciamos el loop para que capture los comandos ingresados 
+    except KeyboardInterrupt: # en caso de ctrl + c se ejecuta una interrupcion del teclado y se termina la sesion
         print(f"\nCierre de sesion : {user} - Interrupcion de teclado")
         logger.info(f" {user} Cerro sesion por Interrupcion de teclado")
         exit()
-    else:
+    else: # en cualquier caso. a la hora de salida se informa del cierre de sesion
         logger.info(f"Cierre de sesion : {user}")
 
 
@@ -559,3 +567,18 @@ elif 'restart' == sys.argv[1]:
     #             # give up
     #             for p in alive:
     #                 print("process {} survived SIGKILL; giving up".format(p))
+
+    # def replace(file_path, pattern, subst):
+    # #Create temp file
+    # fh, abs_path = mkstemp()
+    # with open(abs_path,'w') as new_file:
+    #     with open(file_path) as old_file:
+    #         for line in old_file:
+    #             new_file.write(line.replace(pattern, subst))
+    # close(fh)
+    # #Remove original file
+    # remove(file_path)
+    # #Move new file
+    # move(abs_path, file_path)
+
+

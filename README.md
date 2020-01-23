@@ -9,7 +9,7 @@ Mediante las instrucciones que aporta el intérprete, el usuario puede comunicar
 *** 
 ## Descarga de Repositorio :arrow_backward:
 
-Ejecutar:``` git clone https://gitlab.com/valdeortiz/linuxshell.git ```
+Ejecutar: ``` git clone https://gitlab.com/valdeortiz/linuxshell.git ```
 
 
 
@@ -20,12 +20,14 @@ o decargar en el repositorio. En la seccion de clone, click en "Descargar en zip
 ![Descarga](https://i.imgur.com/3JZUE96.png)
 
 ***
+
 ## Pre-requisitos 📋.
-Se necesita tener instalado python 3.6 en adelante, que viene instalado en la mayoria de distribuciones GNU/Linux. Para asegurarse cual version se encuentra instalado en tu maquina. Ejecuta:
 
-     python --version
+- Se necesita tener instalado python 3.6 en adelante, que viene instalado en la mayoria de distribuciones GNU/Linux. Para asegurarse cual version se encuentra instalado en tu maquina. Ejecuta: ``` python --version```
 
-Seguir las intruciones del enunciado anterior para la Descarga del repositorio.
+- Para instalar las dependencias del proyecto ejecutar: ```pip install requirements.txt``` OBS: Debe tener instalado pip.
+
+- Seguir las intruciones del enunciado anterior para la Descarga del repositorio.
 
 
 ### Ejecucion 🔩
@@ -43,7 +45,9 @@ Desde nuestro interprete de comandos(host, ejemplo bash o zsh). Ingresamos a la 
 ## Comandos ⌨️
 
 1. Copiar archivos/directorio.
+
 <details>
+
 **Descripcion:**
 Copia un archivo o directorio de un lugar a otro 
 
@@ -53,8 +57,7 @@ Copia un archivo o directorio de un lugar a otro
 
 Examples:
 
-```copia archivo1 destino
-```
+```copia archivo1 destino```
 
 **Retorno:**
 En caso de realizar con exito la copia se imprime un mensaje de exito.
@@ -65,6 +68,7 @@ En caso de producirse un error se imprime un mensaje del error producido.
 2. Mover
 
 <details>
+
 **Descripcion:**
 Mueve un archivo o directorio de una ruta a otra. 
 
@@ -74,8 +78,7 @@ Mueve un archivo o directorio de una ruta a otra.
 
 Examples:
 
-```mover archivo1 destino
-```
+```mover archivo1 destino```
 
 **Retorno:**
 En caso de realizar con exito la copia se imprime un mensaje de exito.
@@ -86,6 +89,7 @@ En caso de producirse un error se imprime un mensaje del error producido.
 3. Renombrar
 
 <details>
+
 **Descripcion:**
 Renombrar un archivo o directorio.
 
@@ -95,8 +99,7 @@ Renombrar un archivo o directorio.
 
 Examples:
 
-```renombrar archivoActual nombreNuevo
-```
+```renombrar archivoActual nombreNuevo```
 
 **Retorno:**
 En caso de realizar con exito la copia se imprime un mensaje de exito.
@@ -107,6 +110,7 @@ En caso de producirse un error se imprime un mensaje del error producido.
 4. Listar
 
 <details>
+
 **Descripcion:**
 Lista el contenido del directorio actual. OBS: tambien imprime los archivos ocultos.
 
@@ -116,8 +120,7 @@ Lista el contenido del directorio actual. OBS: tambien imprime los archivos ocul
 
 Examples:
 
-```listar ruta
-```
+```listar ruta```
 
 **Retorno:**
 En caso de realizar con exito la copia se imprime un mensaje de exito.
@@ -128,6 +131,7 @@ En caso de producirse un error se imprime un mensaje del error producido.
 5. Creardir
 
 <details>
+
 **Descripcion:**
 Crea un directorio nuevo en el directorio actual.
 
@@ -136,8 +140,7 @@ Crea un directorio nuevo en el directorio actual.
 
 Examples:
 
-```creadir nombre
-```
+```creadir nombre```
 
 **Retorno:**
 En caso de realizar con exito la copia se imprime un mensaje de exito.
@@ -145,8 +148,9 @@ En caso de producirse un error se imprime un mensaje del error producido.
 
 </details>
 
-6. Crear directorios.
+6. Cambiar de directorio.
 <details>
+
 **Descripcion:**
 Cambiar de directorio.
 
@@ -155,8 +159,7 @@ Cambiar de directorio.
 
 Examples:
 
-```cdir destino
-```
+``` ir destino```
 
 **Retorno:**
 En caso de realizar con exito la copia se imprime un mensaje de exito.
@@ -167,6 +170,7 @@ En caso de producirse un error se imprime un mensaje del error producido.
 7. Cambiar permisos.
 
 <details>
+
 **Descripcion:**
 Cambiar de permisos de un archivo.
 
@@ -176,8 +180,7 @@ Cambiar de permisos de un archivo.
 
 Examples:
 
-```cambiarpermisos archivo permisos
-```
+```cambiarpermisos archivo permisos```
 
 **Retorno:**
 En caso de realizar con exito la copia se imprime un mensaje de exito.
@@ -188,6 +191,7 @@ En caso de producirse un error se imprime un mensaje del error producido.
 8. Cambiar propietarios.
 
 <details>
+
 **Descripcion:**
  Cambiar de propietarios de un archivo.
 
@@ -198,8 +202,7 @@ En caso de producirse un error se imprime un mensaje del error producido.
 
 Examples:
 
-```cambiarpropietario propietarios archivo1 Idpropietario idGrupo
-```
+```cambiarpropietario propietarios archivo1 Idpropietario idGrupo```
 
 **Retorno:**
 En caso de realizar con exito la copia se imprime un mensaje de exito.
@@ -210,6 +213,7 @@ En caso de producirse un error se imprime un mensaje del error producido.
 9. Cambiar contrasenha:
 
 <details>
+
 **Descripcion:**
  Cambiar contrasena de un usuario.
 
@@ -218,8 +222,7 @@ En caso de producirse un error se imprime un mensaje del error producido.
 
 Examples:
 
-```cambiarcontra archivo1 destino
-```
+```cambiarcontra archivo1 destino```
 
 **Retorno:**
 En caso de realizar con exito la copia se imprime un mensaje de exito.
@@ -230,6 +233,7 @@ En caso de producirse un error se imprime un mensaje del error producido.
 10. Nuevo usuario.
 
 <details>
+
 **Descripcion:**
 Crear un usuario en el archivo usuarios_log que esta en /var/log/usuarios_log
 
@@ -241,8 +245,7 @@ Crear un usuario en el archivo usuarios_log que esta en /var/log/usuarios_log
 
 Examples:
 
-```usuario mombre horario_entrada horario_salida ips
-```
+```usuario mombre horario_entrada horario_salida ips```
 
 **Retorno:**
 En caso de realizar con exito la copia se imprime un mensaje de exito.
@@ -253,6 +256,7 @@ En caso de producirse un error se imprime un mensaje del error producido.
 11. servicios.
 
 <details>
+
 **Descripcion:**
 Levanta o apaga demonios.
 
@@ -262,8 +266,7 @@ Levanta o apaga demonios.
 
 Examples:
 
-```servicio demonio accion
-```
+```servicio demonio accion```
 
 **Retorno:**
 En caso de realizar con exito la copia se imprime un mensaje de exito.
@@ -274,6 +277,7 @@ En caso de producirse un error se imprime un mensaje del error producido.
 12. Ejecutar comando fuera de la shell.
 
 <details>
+
 **Descripcion:**
 Ejecuta cualquier comando de del Interprete de comando Host.
 
@@ -282,8 +286,7 @@ Ejecuta cualquier comando de del Interprete de comando Host.
 
 Examples:
 
-```ejecutar comando
-```
+```ejecutar comando```
 
 **Retorno:**
 En caso de realizar con exito la copia se imprime un mensaje de exito.
@@ -312,6 +315,7 @@ En caso de producirse un error se imprime un mensaje del error producido.
 
 
 ## Documentacion oficial 📄
+
 [libreria cmd](https://docs.python.org/3/library/cmd.html "Construccion de un interprete de comandos")
 
 [Libreria os](https://docs.python.org/3/library/os.html "Operaciones del s.o.")
@@ -320,7 +324,20 @@ En caso de producirse un error se imprime un mensaje del error producido.
 
 [Libreria logging](https://docs.python.org/3/library/logging.html#module-logging "Registros/Log")
 
+[Libreria getpass](https://docs.python.org/3/library/getpass.html "manejo de contrasenhas")
 
+[Libreria datetime](https://docs.python.org/3/library/datetime.html "manejo de fecha/hora")
+
+[Libreria socket](https://docs.python.org/3/library/socket.html "interfaz de red")
+
+[Libreria ftplib](https://docs.python.org/3/library/ftplib.html "protocolo ftp")
+
+### Fuera de la biblioteca standar.
+
+> ***Ejecutar: ```pip install requirements.txt``` para instalar todas las dependencias.***
+
+
+[Libreria Psutil](https://psutil.readthedocs.io/en/latest/ "procesos/demonios")
 
 ***
 
