@@ -23,9 +23,9 @@ o decargar en el repositorio. En la seccion de clone, click en "Descargar en zip
 
 ## Pre-requisitos 📋.
 
-- Se necesita tener instalado python 3.6 en adelante, que viene instalado en la mayoria de distribuciones GNU/Linux. Para asegurarse cual version se encuentra instalado en tu maquina. Ejecuta: ``` python --version```
+- Se necesita tener instalado python 3.6 en adelante, que viene instalado en la mayoria de distribuciones GNU/Linux. Para asegurarse cual version se encuentra instalado en tu maquina. Ejecuta: `python --version`
 
-- Para instalar las dependencias del proyecto ejecutar: ```pip install requirements.txt``` OBS: Debe tener instalado pip.
+- Para instalar las dependencias del proyecto ejecutar: `pip install requirements.txt` OBS: Debe tener instalado pip.
 
 - Seguir las intruciones del enunciado anterior para la Descarga del repositorio.
 
@@ -55,9 +55,9 @@ Copia un archivo o directorio de un lugar a otro
 - Archivo1: El archivo a ser copiado.
 - ruta Destino: Ruta destino.
 
-Examples:
+Ejemplos:
 
-```copia archivo1 destino```
+``` copia archivo1 destino ```
 
 **Retorno:**
 En caso de realizar con exito la copia se imprime un mensaje de exito.
@@ -76,9 +76,9 @@ Mueve un archivo o directorio de una ruta a otra.
 - Archivo1: El archivo a ser movido.
 - ruta Destino: Ruta destino.
 
-Examples:
+Ejemplos:
 
-```mover archivo1 destino```
+``` mover archivo1 destino ```
 
 **Retorno:**
 En caso de realizar con exito la copia se imprime un mensaje de exito.
@@ -97,9 +97,9 @@ Renombrar un archivo o directorio.
 - Archivo1: El archivo a ser renombrado.
 - nombre a colocar: Nmobre deseado.
 
-Examples:
+Ejemplos:
 
-```renombrar archivoActual nombreNuevo```
+``` renombrar archivoActual nombreNuevo ```
 
 **Retorno:**
 En caso de realizar con exito la copia se imprime un mensaje de exito.
@@ -118,9 +118,9 @@ Lista el contenido del directorio actual. OBS: tambien imprime los archivos ocul
 - sin argumentos lista el directorio altual.
 - con el argumento [ruta] : lista el directorio colocado en [ruta]
 
-Examples:
+Ejemplos:
 
-```listar ruta```
+``` listar ruta ```
 
 **Retorno:**
 En caso de realizar con exito la copia se imprime un mensaje de exito.
@@ -138,9 +138,9 @@ Crea un directorio nuevo en el directorio actual.
 **Argumentos:**
 - nombre : nombre del directorio a ser creado.
 
-Examples:
+Ejemplos:
 
-```creadir nombre```
+``` creadir nombre ```
 
 **Retorno:**
 En caso de realizar con exito la copia se imprime un mensaje de exito.
@@ -157,9 +157,9 @@ Cambiar de directorio.
 **Argumentos:**
 - ruta Destino: Ruta a ser dirigido.
 
-Examples:
+Ejemplos:
 
-``` ir destino```
+``` ir destino ```
 
 **Retorno:**
 En caso de realizar con exito la copia se imprime un mensaje de exito.
@@ -178,9 +178,9 @@ Cambiar de permisos de un archivo.
 - Archivo: El archivo a ser cambiado.
 - permisos: Los permisos deseados.
 
-Examples:
+Ejemplos:
 
-```cambiarpermisos archivo permisos```
+``` cambiarpermisos archivo permisos ```
 
 **Retorno:**
 En caso de realizar con exito la copia se imprime un mensaje de exito.
@@ -200,9 +200,9 @@ En caso de producirse un error se imprime un mensaje del error producido.
 - id propietario deseado:id del propietario nuevo.
 - id del grupo: id del grupo a ser asignado.
 
-Examples:
+Ejemplos:
 
-```cambiarpropietario propietarios archivo1 Idpropietario idGrupo```
+``` cambiarpropietario propietarios archivo1 Idpropietario idGrupo ```
 
 **Retorno:**
 En caso de realizar con exito la copia se imprime un mensaje de exito.
@@ -220,9 +220,9 @@ En caso de producirse un error se imprime un mensaje del error producido.
 **Argumentos:**
 - usuario: usuario a ser cambiado su contrasenha
 
-Examples:
+Ejemplos:
 
-```cambiarcontra archivo1 destino```
+``` cambiarcontra archivo1 destino ```
 
 **Retorno:**
 En caso de realizar con exito la copia se imprime un mensaje de exito.
@@ -243,9 +243,9 @@ Crear un usuario en el archivo usuarios_log que esta en /var/log/usuarios_log
 - horario de salida: su horario maximo.
 - ip: su lista de posibles conexiones. 
 
-Examples:
+Ejemplos:
 
-```usuario mombre horario_entrada horario_salida ips```
+``` usuario mombre horario_entrada horario_salida ips ```
 
 **Retorno:**
 En caso de realizar con exito la copia se imprime un mensaje de exito.
@@ -264,9 +264,9 @@ Levanta o apaga demonios.
 - demonio: nombre del demonio.
 - accion: accion a ejecutar
 
-Examples:
+Ejemplos:
 
-```servicio demonio accion```
+``` servicio demonio accion ```
 
 **Retorno:**
 En caso de realizar con exito la copia se imprime un mensaje de exito.
@@ -284,9 +284,9 @@ Ejecuta cualquier comando de del Interprete de comando Host.
 **Argumentos:**
 - comando: comando a ser ejecutado.
 
-Examples:
+Ejemplos:
 
-```ejecutar comando```
+``` ejecutar comando ```
 
 **Retorno:**
 En caso de realizar con exito la copia se imprime un mensaje de exito.
