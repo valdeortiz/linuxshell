@@ -260,18 +260,48 @@ class Comandos(Cmd):
             with open(archivo_usuario, "a") as f: # abrimos el archivo y colocamos la informacion al final del archivo
                 f.write(args + "\n")
                 print("Usuario Registrado en /var/log/usuarios_log")
-          
+
     def do_ftp(self,args):
-        """Ftp brinda la posibilad de conectarse a traves del protocolo FTP.
+        """Ftp brinda la posibilad de conectarse a traves del protocolo FTP. Posibilitando la tranferencia o descarga de un archivo
         Parametros: [urlFtp] -> Url del servidor FTP.
         Ejecucion: ftp [urlFtp]
         """
+        #https://dlptest.com/ftp-test/
+
         self.log(f"ftp {args} ")
-        usuario = input("Introduce el usuario: ")
-        contra = getpass.getpass("Introduce la contrasenha: ")
-        ftp = ftplib.FTP(args)
-        ftp.login(usuario, contra)
-        ftp.quit()
+        if self.confirmarLongitud(len(args.split(" ")), 1, "ftp" ) :
+            try:
+                ftp = ftplib.FTP(args, timeout=100)
+                usuario = input("Introduce el usuario: ")
+                contra = getpass.getpass("Introduce la contrasenha: ")
+                ftp.login(usuario, contra)
+                #ftp.retrlines("LIST")
+                # (cmd, fp) cmd debe ser un RERT apropiado y fp el archivo destino
+                #FTP.storlines(cmd, fp) para subir archivos
+                #ftp.storbinary('STOR archivo2.txt', text_file)
+                #ftp.retrbinary('RETR FTP.txt', open('archivodescargado.txt', 'wb').write)
+                dec = int(input("1 - subir || 2 - descargar || 3 - salir -> "))
+                while dec != 3:
+                    if dec == 1:
+                        archivo = input("Introduce el nombre del archivo(obs: con su extension al final): ")
+                        file = open(archivo, 'rb')
+                        ftp.storbinary(f'STOR {archivo}', file)
+                        ftp.retrlines('LIST')
+                    else:
+                        ftp.retrlines('LIST')
+                        archivo = input("Introduce el nombre del archivo(obs: con su extension al final)")
+                        ftp.retrbinary(f'RETR {archivo}', open(archivo, 'wb').write)
+                    with open("transferencia_log","a+") as transferencia:
+                        transferencia.write(f"se realizo una transferencia ftp con el {usuario} en {args} ")   
+                    dec = int(input("1 - subir || 2 - descargar || 3 - salir"))
+
+                ftp.quit()
+            except Exception as e:
+                self.log_error.error(f"Error {e} -> al ejecutar <ftp>")
+                print("no se pudo conectar")
+                print(e)    
+        
+    
 
     def do_limpiar(self, args):
         os.system("clear")
